@@ -41,7 +41,11 @@ Compile.prototype = {
 		})
 	},
 	compile: function (node) {
-
+		var nodeAttrs = node.attributes
+		var that = this
+		[].slice.call(nodeAttrs).forEach(function (item) {
+			
+		})
 	},
 	// 元素类型
 	isElementNode: function (node) {
