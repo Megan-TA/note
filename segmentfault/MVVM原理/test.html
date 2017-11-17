@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div id="test">
+		<p v-model='11'>1</p>
+		<span v-text='11' v-click='222'>2</span>
+	</div>
+</body>
+<script type="text/javascript">
+	var a = document.querySelector('#test')
+
+	var frament = document.createDocumentFragment()
+
+	while (child = a.firstChild) {
+		frament.appendChild(child)
+	}
+</script>
+</html>
