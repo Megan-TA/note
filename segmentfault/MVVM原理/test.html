@@ -6,8 +6,10 @@
 </head>
 <body>
 	<div id="test">
-		<p v-model='11'>1</p>
-		<span v-text='11' v-click='222'>2</span>
+		<p>
+			<small>1111</small>
+		</p>
+		<span>2</span>
 	</div>
 </body>
 <script type="text/javascript">
@@ -18,5 +20,7 @@
 	while (child = a.firstChild) {
 		frament.appendChild(child)
 	}
+
+	console.log(frament.childNodes)
 </script>
 </html>

@@ -7,27 +7,41 @@
 </head>
 <body>
 
-	<div id="test">{{name}}</div>
+	<div id="test">
+		<p v-html="testHTML"></p>
+		<input type="text" v-model="name">
+		<p v-text="age"></p>
+		<button v-on:click="clickBtn">{{age}}</button>
+	</div>
 
 </body>
 <script type="text/javascript" src="observer.js"></script>
 <script type="text/javascript" src="dep.js"></script>
 <script type="text/javascript" src="watcher.js"></script>
+<script type="text/javascript" src="compile.js"></script>
 <script type="text/javascript" src="MVVM.js"></script>
 
 
 <script type="text/javascript">
-	var ele = document.querySelector('#test')
 	var vm = new MVVM({
-		el: ele,
+		el: '#test',
 		data: {
-			age: 13
+			age: 13,
+			name: '张三',
+			testHTML: '<span>2222</span>'
 		},
-		exp: 'age'
+		methods: {
+			'clickBtn': function () {
+				alert('clickBtn')
+			}
+		}
 	})
-	setTimeout(function () {
-		vm.age = 15
-	}, 1000)
+	vm.$watch('age', function () {
+		alert(1)
+	})
+	// setTimeout(function () {
+	// 	vm.age = 15
+	// }, 1000)
 </script>
 
 </html>

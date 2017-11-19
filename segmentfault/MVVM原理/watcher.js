@@ -14,7 +14,7 @@ Watcher.prototype = {
 		var oldVal = this.value
 		if (newVal == oldVal) return
 		this.value = newVal
-		this.cb(newVal)
+		this.cb.call(this.vm, newVal, oldVal)
 		console.log('更新成功   ' +  oldVal + '更新为' + newVal)
 	},
 	get: function () {

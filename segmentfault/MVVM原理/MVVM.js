@@ -5,17 +5,23 @@ function MVVM (options) {
 	this.$data = this.$options.data
 	this.$exp = this.$options.exp
 	this.$el = this.$options.el
-	this.$el.innerHTML = this.$data[this.$exp]
+	// this.$el.innerHTML = this.$data[this.$exp]
 	Object.keys(this.$data).forEach(function (key){
 		that._proxy(key)
 	})
 	observer(this.$data)
-	new Watcher(this.$data, this.$exp, function (value) {
-		options.el.innerHTML = value
-	})
+	// new Watcher(this.$data, this.$exp, function (value) {
+	// 	options.el.innerHTML = value
+	// })
+
+	this.$compile = new Compile(this.$el, this)
 }
 
 MVVM.prototype = {
+	$watch: function (key, cb, options) {
+		new Watcher(this, key, cb)
+	},
+
 	// 属性代理 实现vm.age访问相当于vm.$data.age
 	// 默认实例修改数值需要通过vm.$data方式
 	_proxy: function (key) {
