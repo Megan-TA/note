@@ -11,5 +11,6 @@
 
 相关参考地址:
 
-[vue双向数据实现原理](https://segmentfault.com/a/1190000006599500);
+[vue双向数据实现原理](https://segmentfault.com/a/1190000006599500)
+
 [文档碎片](http://blog.csdn.net/gisdaocaoren/article/details/41694557)
