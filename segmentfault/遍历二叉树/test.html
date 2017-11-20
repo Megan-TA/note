@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+</body>
+<script>
+    var treeNodes = [
+       {
+            id: 1,
+            name: '1',
+            children: [
+                 {
+                      id: 11,
+                      name: '11',
+                      children: [
+                           {
+                                id: 111,
+                                name: '111',
+                                children:[]
+                           },
+                           {
+                                id: 112,
+                                name: '112'
+                           }
+                      ]
+                 },
+                 {
+                      id: 12,
+                      name: '12',
+                      children: []
+                 }
+            ],
+            users: []
+       },
+       {
+            id: 2,
+            name: '2',
+            children: [
+                {
+                    id: 22,
+                    name: '22',
+                    children: []
+                }
+            ]
+       }
+    ]
+
+    // 递归 => 默认广度优先
+    ;(function (treeNodes) {
+        treeNodes.forEach((item, index) => {
+            console.log(item.id)
+            if (item.children && item.children.length) {
+                arguments.callee(item.children)
+            }
+        })
+    })(treeNodes)
+    console.log('===========================')
+    // 非递归 => 广度优先
+    // 匹配到有children添加到外部定义的数组后面
+    ;(function (treeNodes) {
+        let stack = []
+        let result
+        treeNodes.forEach((item, index) => {
+            stack.push(item)          
+        })
+        while (stack.length) {
+            result = stack.shift()
+            console.log(result.id)
+            if (result.children && result.children.length) {
+                result.children.forEach((res) => {
+                    stack.push(res)
+                })
+            }
+        }
+
+    })(treeNodes)
+    console.log('===========================')
+    // 非递归 => 深度优先
+    // 匹配到有children将之前的外部数组剩余数值添加到同名新数组覆盖原数组
+    ;(function (treeNodes) {
+        let stack = []
+        let result
+        treeNodes.forEach((item, index) => {
+            stack.push(item)
+        })
+        while (stack.length) {
+            result = stack.shift()
+            console.log(result.id)
+            if (result.children && result.children.length) {
+                stack = result.children.concat(stack)
+            }
+        }
+    })(treeNodes)
+    
+</script>
+</html>
