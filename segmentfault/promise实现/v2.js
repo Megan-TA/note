@@ -55,6 +55,14 @@ getUserId()
     // 对job的处理
 });
 
+function getUserId() {
+    return new Promise(function(resolve) {
+        //异步请求
+        resolve(22)
+        
+    })
+}
+
 function getUserJobById(id) {
     return new Promise(function (resolve) {
         
