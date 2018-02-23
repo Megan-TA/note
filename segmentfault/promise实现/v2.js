@@ -34,7 +34,7 @@ function Promise(fn) {
             if (typeof then === 'function') {
                 then.call(newValue, resolve);
                 return;
-            }
+                    }
         }
         state = 'fulfilled';
         value = newValue;
