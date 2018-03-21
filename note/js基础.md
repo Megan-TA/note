@@ -216,78 +216,159 @@ var re = new RegExp('\\b'+classname+'\\b');
 ------------------------------------------
 
 ## 11. Object
-* **constructor**
-> **实例的constructor 永远指向 '构造函数'的 prototype.constructor**
->
+
+    1. constructor
+
+        实例的constructor 永远指向 构造函数 的 prototype.constructor
+
+        理解成 实例是基于构造函数原型链生成的对象
+
 ```
+
 function A(x){
     this.x = x;
 }
 var newA = new A(name);
 
 此时：
-A.prototype.constructor = newA.constructor;
-```
-
-* **hasOwnProperty**
-> **判断对象上某个属性属于自身为true, 原型链上为false**
-> 
-```
-function a(){
-    this.show = 'x';
-}
-a.prototype.hide = function(){
-    console.log(111111);
-}
-var z = new a();
-z.hasOwnProperty('show');          // true
-z.hasOwnProperty('hide');          // false
+newA.constructor == A.prototype.constructor;
 
 ```
 
-* **isPrototypeOf**
-> **判断一个对象是否是另一个对象的原型**
->
+    2. hasOwnProperty
+
+        判断对象上某个属性是否属于自身 属于自身为true, 原型链上为false 
 
 ```
-var monkey = {
-    hair : true,
-    breathes : function(){
-        alert('1')
+    function a () {
+        this.show = 'x';
     }
+    a.prototype.hide = function () {
+        console.log(111111);
+    }
+    var z = new a();
+    z.hasOwnProperty('show');          // true
+    z.hasOwnProperty('hide');          // false
+```
+
+    3. isPrototypeOf
+
+        判断一个对象是否是另一个对象的原型
+
+```
+    var monkey = {
+        hair : true,
+        breathes : function(){
+            alert('1')
+        }
+    }
+    function Human(name){
+        this.name = name;
+    }
+    // Human的原型链绑定monkey对象
+    Human.prototype = monkey;
+
+    var man = new Human('张三');
+    monkey.isPrototypeOf(man);      // true
+
+```
+
+    4. prototype和__proto__
+
+        prototype是一个函数的内置属性（每个函数都有一个prototype属性）
+
+        __proto__ 是一个实例对象的内置属性 实例化的对象在内部通过此属性寻找原型链
+
+```
+var Person = function () {}
+var zhangsan = new Person ()
+
+zhansan.__prop__ = Person.prototype
+
+new 的过程拆分成以下三步
+
+1. var p = {}
+2. p.__proto__ = Person.prototype
+3. Person.call(p)
+```
+
+    5. Object.getPrototypeOf
+
+        获取 实例化对象 原型链 的相关属性
+
+```
+function Test () {
+
 }
-function Human(name){
-    this.name = name;
+
+test.prototype.showName = function () {
+    console.log(1)
 }
-// Human的原型链绑定monkey对象
-Human.prototype = monkey;
 
-var man = new Human('张三');
-monkey.isPrototypeOf(man);      // true
+let obj = new Test ()
+Object.getPrototypeOf(obj) == obj.__proto__
 
 ```
 
-* **prototype和__proto__**
+    6. Object.keys
 
-prototype是一个函数的内置属性（每个函数都有一个prototype属性）
+        可以用来枚举可遍历的属性 返回一个数组
 
-__proto__ 是一个实例对象的内置属性 js内部通过此属性寻找原型链
+    7. Object.create
 
-#### 举例：
- 
+        在原型链上创建对象属性
+
 ```
- var Person = function() {}
- var zhangsan = new Person()
- 
- zhansan.__prop__ = Person.prototype
- 
- new 的过程拆分成以下三步
- 
- 1. var p = {}
- 2. p.__proto__ = Person.prototype
- 3. Person.call(p)
+    <!-- 属性创建在原型链上 -->
+    Object.create({
+        name: '张三'
+    })
+
+    <!-- 字面量方式创建的对象属性挂在自身 -->
+    let test = {
+        name: '张三'
+    }
+
 ```
----------------------------
+
+    8. Object.isExtensible
+
+        判断对象是否可以新增属性
+
+    9. Object.preventExtension
+
+        锁住对象 使其不能新增属性 但是原来的属性可以修改删除
+
+    10. Object.seal
+
+        密封对象 不能增加新属性 也不能删除旧属性  但是能修改原来的属性
+
+    11. Object.isSealed
+
+        判断对象是否密封
+
+    12. Object.freeze
+
+        冻结对象 不能新增 不能修改 不能删除
+
+    13. Object.isFrozen
+
+        判断对象是否完全被冻结
+
+    14. Object.getOwnPropertyNames
+
+        获取自身属性名字 返回一个数组
+
+    15. Object.getOwnPropertyDescriptor
+
+        判断某个对象上某个属性的状态描述
+
+    16. Object.defineProperty
+
+
+
+
+    -----------
 
 ## 12. 继承
 > **调用另一个对象的方法，以另一个对象替换当前对象的上下文**
@@ -388,22 +469,21 @@ man.prototype = new person();
 ------------------------------
 
 ## 13. cookie sessionStorage localStorage
-> **cookie**
-* 4k的限制；
-* 服务端和客户端传递时都会带上cookie
-* 本质上是对字符串的读取 存储内容过多消耗内存空间 导致页面变卡顿；
-* 不能被爬虫读取；
-* 设置时间之前一直有效，到时间就清除；
-> **sessionStorage**
-* 临时存储：引入“浏览器窗口”的概念，同源同窗口数据不会销毁，不同浏览器窗口中不能共享，关闭浏览器时候销毁；
-* 减少网络流量，即减少数据在服务端和客户端之间的传递；
-* 性能更好，即本地读取数据比服务器获取快多了；
-> **localStorage**
-* 减少网络流量，即减少数据在服务端和客户端之间的传递；
-* 体积更大 5M;
-* 持久存储在本地，直到手动清除;
 
-> 
+    1. cookie
+        * 4k的限制；
+        * 服务端和客户端传递时都会带上cookie；
+        * 本质上是对字符串的读取 存储内容过多消耗内存空间 导致页面变卡顿；
+        * 不能被爬虫读取；
+        * 设置时间之前一直有效，到时间就清除；
+    2. sessionStorage
+        * 临时存储：引入“浏览器窗口”的概念，同源同窗口数据不会销毁，不同标签页中数据不能共享，关闭浏览器时候销毁；
+        * 减少网络流量，即减少数据在服务端和客户端之间的传递；
+        * 性能更好，即本地读取数据比服务器获取快多了；
+    3. localStorage
+        * 减少网络流量，即减少数据在服务端和客户端之间的传递；
+        * 体积更大 5M；
+        * 持久存储在本地，直到手动清除；
 
 ```
 localStorage.setItem('sss',1111);
@@ -411,7 +491,8 @@ localStorage.getItem('sss');
 localStorage.removeItem('sss');
 localStorage.clear();
 ```
-----------------------------
+
+---
 
 ## 14. 闭包
 > 因为js是链式的 一层一层向上级查找 所以外部函数无法访问内部函数;
@@ -682,83 +763,89 @@ define(['./a', './b'], function(a, b) {
 ----------------------------
 
 ## 19. 常见服务器的状态码
-1. ### 304 
-> Not Modified
-> 
-> 客户端有缓冲的文档并发出了一个条件性的请求（一般是提供If-Modified-Since头表示客户只想比指定日期更新的文档）。服务器告诉客户，原来缓冲的文档还可以继续使用。
-2. ### 400
-> Bad Request
-> 
-> 表示该请求报文中存在语法错误，导致服务器无法理解该请求。
-3. ### 403
-> Forbidden
-> 
-> 该状态码表明对请求资源的访问被服务器拒绝了。
-3. ### 500 
-> Internal Server Error
-> 
-> 该状态码表明服务器端在执行请求时发生了错误。
-4. 301 永久重定向
-5. 302 临时重定向  会出现URL劫持  体现在搜索引擎收录策略上
 
----------------------------
+    1. ### 304
+    > Not Modified
+    >
+    > 客户端有缓冲的文档并发出了一个条件性的请求（一般是提供If-Modified-Since头表示客户只想比指定日期更新的文档）。服务器告诉客户，原来缓冲的文档还可以继续使用。
+    2. ### 400
+    > Bad Request
+    >
+    > 表示该请求报文中存在语法错误，导致服务器无法理解该请求。
+    3. ### 403
+    > Forbidden
+    >
+    > 该状态码表明对请求资源的访问被服务器拒绝了。
+    3. ### 500
+    > Internal Server Error
+    >
+    > 该状态码表明服务器端在执行请求时发生了错误。
+    4. 301 永久重定向
+    5. 302 临时重定向  会出现URL劫持  体现在搜索引擎收录策略上
+
+    ---------------------------
 
 ## 20. 事件冒泡和事件捕获
-* 事件冒泡兼容写法
 
-```
-if (event.cancelBubble) {
-    event.cancelBubble = true
-} else {
-    event.stopPropagation()
-}
-```
+    * 事件冒泡兼容写法
 
-
---------------------------
+    ```
+    if (event.cancelBubble) {
+        event.cancelBubble = true
+    } else {
+        event.stopPropagation()
+    }
+    ```
+    --------------------------
 
 ## 21. 数组
-* ### push  
-> 向数组末尾添加指定元素
 
-* ### pop
-> 移除数组末尾的一个元素 并返回移除的元素
+    1. push
 
-* ### shift
-> 移除数组第一项并返回该项
+        向数组末尾添加指定元素
 
-* ### unshift
-> 给数组第一项加上一个元素 返回数组长度
+    2. pop
 
-* ### join
-> 数组按照指定的字符换转成字符串
+        移除数组末尾的一个元素 并返回移除的元素
 
+    3. shift
 
-* ### sort
-> 数组按照ASCII排序  所以要完全按照从小到大的顺序排序的话需要指定参数 1 -1 0
+        移除数组第一项 并返回该元素
 
-* ### slice
-> 在不修改目标数组的情况下返回截取的指定元素（ **起始位置，截止位置**）
+    4. unshift
 
->  从0开始 ==不包含最后一个数值==
+        给数组第一项加上一个元素 返回数组长度
 
-* ### substr
+    5. join
 
-> subdtr接收的是起始位置和==所要返回的字符串长度==
+        数组按照指定的字符换转成字符串
 
-* ### substring
+    6. sort
 
-> 默认会将较小的参数作为第一个参数
+        数组按照ASCII排序  所以要完全按照从小到大的顺序排序的话需要指定参数 1 -1 0
 
-  参数是正数的情况下 截取规则和slice一样 
-  
-  当参数为负数的情况下的表现形式不一样
+    7. slice
 
-1. slice将负数加上自身长度得到的数值作为参数
-  
-2. substring将负数当做0处理
-  
-3. substr仅仅将第一个参数与字符串长度相加后的数值作为第一个参数
+        在 不修改目标数组 的情况下返回截取的指定元素（ **起始位置，截止位置**）
+
+        从0开始 ==不包含最后一个数值==
+
+        负数情况下 将负数加上自身长度得到的数值作为参数
+
+    8. substr
+
+        subdtr接收的是 起始位置 和 所要返回的字符串长度
+
+        在负数情况下  将第一个参数与字符串长度相加后的数值作为第一个参数
+
+    9. substring
+
+        默认会将较小的参数作为第一个参数
+
+        在 不修改目标数组 的情况下返回截取的指定元素 （ **起始位置，截止位置**）
+
+        负数当做0处理
+
 ```
 let test = 'abcdef'
 test.slice(0, -1)   // abcde
@@ -768,15 +855,25 @@ test.substring(1, -2) => a
 test.substring(2, -3) => ab
 ```
 
-* ### splice
+    10. splice
 
-> 删除 ---------------------（**起始位置，截取个数**）
+    > 删除 ---------------------（**起始位置，截取个数**）
 
-> 插入 ---------------------（**起始位置，截取个数为0，要插入的项**）
+    > 插入 ---------------------（**起始位置，截取个数为0，要插入的项**）
 
-> 替换----------------------（**起始位置，截取个数为1，要插入的项**）
+    > 替换----------------------（**起始位置，截取个数为1，要插入的项**）
 
-----
+
+    11. 遍历数组的方法
+
+        > forEach
+        > for in
+
+        两者区别 在于 for in 会遍历数组原型链的属性值
+
+        为了避免这样的情况 使用 hasOwnProperty 解决
+
+---
 
 ## 22.正则
 
@@ -864,21 +961,21 @@ var str2 = str.replace(re,function(str){
 alert(str2) 
 ```
 
-```
-var str = '2013-6-7';
-var re = /(\d+)(-)/g;
+    ```
+    var str = '2013-6-7';
+    var re = /(\d+)(-)/g;
 
-str = str.replace(re,function($0,$1,$2){
-        // replace()中如果有子项，
-        // 第一个参数 ：$0（匹配成功后的整体结果  2013-  6-）,
-        // 第二个参数 : $1(匹配成功的第一个分组，这里指的是\d   2013, 6)
-        // 第三个参数 : $2(匹配成功的第二个分组，这里指的是-    - - )   
-    return $1 + '.';  //分别返回2013.   6.
-});
+    str = str.replace(re,function($0,$1,$2){
+            // replace()中如果有子项，
+            // 第一个参数 ：$0（匹配成功后的整体结果  2013-  6-）,
+            // 第二个参数 : $1(匹配成功的第一个分组，这里指的是\d   2013, 6)
+            // 第三个参数 : $2(匹配成功的第二个分组，这里指的是-    - - )   
+        return $1 + '.';  //分别返回2013.   6.
+    });
 
-alert( str );   //2013.6.7
-//整个过程就是利用子项把2013- 6- 分别替换成了2013. 6.  最终弹出2013.6.7
-```
+    alert( str );   //2013.6.7
+    //整个过程就是利用子项把2013- 6- 分别替换成了2013. 6.  最终弹出2013.6.7
+    ```
 ---
 
 ###  正则两个方法
@@ -890,78 +987,114 @@ alert( str );   //2013.6.7
 * ### ==exec()==
 
 > 返回第一匹配项信息的数组  若没有返回null
-
 > 有两个属性 index input
 
-```
-var text = 'mom and dad and baby'
-var pattern = /mom( and dad( and baby)?)?/gi
-var matches = pattern.exec(text)
-mathes.index // 0
-mathes.input // mom and dad and baby
-mathes[0] // mom and dad and baby
-mathes[1] //  and dad and baby
-mathes[2] // and baby
-```
-
+    ```
+    var text = 'mom and dad and baby'
+    var pattern = /mom( and dad( and baby)?)?/gi
+    var matches = pattern.exec(text)
+    mathes.index // 0
+    mathes.input // mom and dad and baby
+    mathes[0] // mom and dad and baby
+    mathes[1] //  and dad and baby
+    mathes[2] // and baby
+    ```
 
 ## 23. 后退监听
 
 > history.back() history.forward() history.replace()触发onpopstate事件
 
-```
-window.onpopstate = function () {
-    alert('2222')
+    ```
+    window.onpopstate = function () {
+        alert('2222')
+        history.pushState(null, null, document.URL)
+        return false
+    }
     history.pushState(null, null, document.URL)
-    return false
-}
-history.pushState(null, null, document.URL)
-```
+    ```
 
-onbeforeunload事件有坑 chrome51版本及以后不能自定义文字 并且 页面载入之后一定要有浏览器行为才能触发
+    onbeforeunload事件有坑 chrome51版本及以后不能自定义文字 并且 页面载入之后一定要有浏览器行为才能触发
 
 ## 24. base64图片及相关验证码
 
 > data:image/gif;base64, (base64地址)
 
-```
-if (result == null || result.length == 0) return
-result = $.parseJSON(result)
-var id = result['id']
-var imgUrl = result['base64Buffer']
-$('#js-code').attr('src', 'data:image/gif;base64,' + imgUrl)
+    ```
+    if (result == null || result.length == 0) return
+    result = $.parseJSON(result)
+    var id = result['id']
+    var imgUrl = result['base64Buffer']
+    $('#js-code').attr('src', 'data:image/gif;base64,' + imgUrl)
 
-```  
- 
- ## 26. from包裹的元素document事件失效 必须给from加事件
- 
- ## 27. 进制转换
- 
+    ```
+
+## 26. from包裹的元素document事件失效 必须给from加事件
+
+## 27. 进制转换
+
  > 十进制转十六进制 
- 
- ```
- var s = 255
- s.toString(16) // ff
- ```
- 
+
+    ```
+    var s = 255
+    s.toString(16) // ff
+    ```
+
  > 十六进制转十进制
- 
- ```
- parseInt('0xFF')   // 255
- ```
- 
- ## 28. label绑定事件一定要让事件委托到触发里面的input 
- 
- 所以事件委托的时候直接监听input
- 
- ## 29. 跨域post请求转为options类型
- 
- ## 30. Math
- 
- 1. Math.floor 向下舍入；
- 2. Math.ceil  向上舍入;
- 3. Math.cos   余弦;
- 4. Math.round 四舍五入;
- 5. Math.sin   正弦；
- 6. Math.tan   正切；
- 
+
+    ```
+    parseInt('0xFF')   // 255
+    ```
+
+## 28. label绑定事件一定要让事件委托到触发里面的input
+
+    所以事件委托的时候直接监听input
+
+## 29. 跨域post请求转为options类型
+
+## 30. Math
+
+    1. Math.floor 向下舍入；
+    2. Math.ceil  向上舍入;
+    3. Math.cos   余弦;
+    4. Math.round 四舍五入;
+    5. Math.sin   正弦；
+    6. Math.tan   正切；
+
+## 31. isNaN
+
+    首先需要知道 '' == 0   'abc' != 0   [] == 0  [1] != 0   null == 0
+
+    ```
+    isNaN('')   // false
+    isNaN(' ')  // false
+    isNaN('abc') // true
+    isNaN(undefined) // true
+    isNaN([])   // false
+    isNaN({})   // true
+    isNaN(null) // true
+
+    ```
+
+## 32. Boolen
+
+    首先需要知道  0 == false    1 == true  '' == false   undefined != false != true    null != false != true
+
+    ```
+    Boolean('') // false
+    Boolean('ssss') // true
+    Boolean([])  // true
+    Boolean([1,2])  // true
+    Boolen({})      // true
+    Boolen(null)    // false
+    Boolen(undefined)   // false
+    ```
+
+## 33. 解决回调地狱 （多级回调）
+
+    1. Promise
+
+    2. aSync/await
+
+    3. generator
+
+    4. 订阅/发布
