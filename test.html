@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+
+        .grid{
+            border: 1px solid blue;
+            height: 600px;
+            display: grid;
+            grid-template-columns: 50px 50px 100px 30px;
+            grid-template-rows: 100px 50px 30px;
+            grid-row-gap: 10px;
+            grid-column-gap: 20px;
+            justify-content: center;
+            align-content: center;
+        }
+        .box{
+            border: 1px solid red;
+        }
+
+        .box.a{
+            justify-self: center;
+            align-self: center;
+        }
+        
+        .box.five{
+            grid-row: 2 / 4;
+        }
+
+    </style>
+</head>
+<body>
+    <h2>测试grid布局</h2>
+    <div class="grid">
+        <div class="box a">1</div>
+        <div class="box">2</div>
+        <div class="box">3</div>
+        <div class="box">4</div>
+        <div class="box five">5</div>
+        <div class="box">6</div>
+        <div class="box">7</div>
+        <div class="box">8</div>
+        <div class="box">9</div>
+        <div class="box">10</div>
+        <div class="box">11</div>
+    </div>
+    <hr>
+</body>
+</html>

@@ -12,7 +12,7 @@
     'decodeURI': 解码
     'decodeURIComponent': 带参数解码
     
----------------------------------
+---
 
 ## 2. 序列化和反序列化
 >
@@ -27,7 +27,7 @@ JSON.parse()            // 反序列化
 
 > JSON.stringify() 可以用来迅速判断两个对象是否相等
 
---------------------------------
+---
 
 ## 3. 日期
 >
@@ -43,7 +43,13 @@ new Date().toLocaleTimeString("UTC",{ hour12: false })  // 17:20:16
 ```
 -----------------------------
 
-## 4. location
+## 4. 回流/重绘
+
+1. 回流：几何属性发生变化 比如： 内容、结构、位置或尺寸发生变化，需要重新计算样式和渲染树；
+
+2. 重绘：元素发生的改变只影响了节点的一些样式（背景色、边框色、文字颜色等）
+
+
 
 
 
@@ -762,8 +768,10 @@ fn()
 
 ## 18. AMD和CMD区别
 
-* CMD 推崇依赖就近，AMD 推崇依赖前置。
-> 
+1. AMD 推崇依赖前置。 （requireJS）
+
+   CMD 推崇依赖就近， （seaJS）
+    
 ```
 // CMD
 define(function(require, exports, module) {   
@@ -780,9 +788,20 @@ define(['./a', './b'], function(a, b) {
     b.doSomething()    
 })
 ```
-* 对于依赖的模块，AMD 是提前执行，CMD 是延迟执行。
+
+2.  对于依赖的模块，
+
+    AMD 是提前执行（预执行），
+
+    CMD 是延迟执行（懒执行）。
+
 > 不过 RequireJS 从 2.0 开始，也改成可以延迟执行（根据写法不同，处理方式不同）。CMD 推崇 as lazy as possible.
-* AMD 的 API 默认是一个当多个用，CMD 的 API 严格区分，推崇职责单一。
+
+3. 
+    AMD 的 API 默认是一个当多个用，
+    
+    CMD 的 API 严格区分，推崇职责单一
+
 > 比如 AMD 里，require 分全局 require 和局部 require，都叫 require。CMD 里，没有全局 require，而是根据模块系统的完备性，提供 seajs.use 来实现模块系统的加载启动。CMD 里，每个 API 都简单纯粹。
 
 ----------------------------
@@ -849,7 +868,9 @@ define(['./a', './b'], function(a, b) {
 
         数组按照ASCII排序  所以要完全按照从小到大的顺序排序的话需要指定参数 1 -1 0
 
-    7. splice
+    7. splice 
+
+        从0开始
 
     > 删除 ---------------------（**起始位置，截取个数**）
 
@@ -857,8 +878,13 @@ define(['./a', './b'], function(a, b) {
 
     > 替换----------------------（**起始位置，截取个数为1，要插入的项**）
 
+    8. slice
 
-    8. 遍历数组的方法
+    9. concat
+
+    10. reverse
+
+    11. 遍历数组的方法
 
         > forEach
         > for in
@@ -1057,7 +1083,7 @@ alert(str2)
 
 ## 31. isNaN
 
-    首先需要知道 '' == 0   'abc' != 0   [] == 0  [1] != 0   null == 0
+    首先需要知道 '' == 0   'abc' != 0   [] == 0  [1] != 0   null == 0  {} != 0  undefined != 0
 
     ```
     isNaN('')   // false
@@ -1066,7 +1092,7 @@ alert(str2)
     isNaN(undefined) // true
     isNaN([])   // false
     isNaN({})   // true
-    isNaN(null) // true
+    isNaN(null) // false
 
     ```
 
@@ -1151,11 +1177,48 @@ test.substring(2, -3) => ab
 
 ## 37. CommonJS中的require/exports和ES6的import/export有什么区别
 
-    1. CommomJS模块重要特性就是require代码时候会立刻执行，如果发现一个模块被多次引用，会直接返回已经执行的部分；
+1. 
+> CommomJS模块require代码时候会立刻执行；
+    
+> ES6模块是动态引用，不会立刻执行，仅仅作为一个加载模块的对象引用；
 
-    2. ES6模块是动态引用，不会立刻执行，仅仅作为一个加载模块的引用；
+2. 
+> CommonJs模块输出的是一个值的拷贝， 输出后的对象会被缓存（即 如果发现一个模块被多次引用，会直接返回已经执行的部分）；
 
-    3. import/export最终都会编译为 require/exports执行；
+```
+// lib.js
+var counter = 3;
+function incCounter() {
+  counter++;
+}
+module.exports = {
+  counter: counter,
+  incCounter: incCounter,
+};
+```
+
+```
+// main.js
+var mod = require('./lib');
+
+console.log(mod.counter);  // 3
+mod.incCounter();
+console.log(mod.counter); // 3
+
+```
+
+> ES6模块输出的是值的只读引用；
+
+* 接口输出的变量是只读的，重新赋值会报错；
+* export通过接口输出的是同一个值，得到的都是同样的实例；
+* 如果需要import支持动态加载 提案建议引入 import() 返回一个promise对象；
+
+
+
+
+参考资料：
+
+1. [ES6 模块与 CommonJS 模块的差异 ](http://es6.ruanyifeng.com/#docs/module-loader)
 
 ## 38. 浏览器缓存
 
@@ -1179,5 +1242,137 @@ test.substring(2, -3) => ab
     1. Last-Modified 代表资源最后更新时间；
 
     2. If-Modified-Since 代表 判断两次请求之间是否有过修改 没有直接返回协商缓存；
+
+
+## 39. ES6
+
+    1. class
+
+        1. class内部方法都是扩展在函数的原型链上;
+
+        2. class内部方法无法遍历（Object.keys），而ES5构造函数原型链的方法可以遍历；
+
+        3. class的方法名字可以是表达式（用[]圈起来）；
+
+        4. 不存在变量提升；
+
+        5. static 静态属性 且不会被实例获取到，可以被继承到；
+
+        6. get/set 对某个方法拦截；
+
+        7. new.target 可以用来判断类是使用哪个方法调用（可用来指定必须new或者extends击沉调用形式）；
+
+        8. extends 继承 
+
+            ES6继承和ES5继承区别：
+
+            ES5继承是 先创造子类的实例对象this，再将父类方法添加到this上
+
+            ES6继承是 先创造父类的实例对象this，再在子类的构造函数修改this
+
+---
+
+2. Set/WeakSet 和  Map/WeakMap
+
+### Set
+
+1. Set是一组没有重复值的数据结构（多个NaN默认是相同的，只能添加一个）；
+
+2. Set构造函数的方法：
+
+* size;
+
+* delete;
+
+* has;
+
+* clear;
+
+3. Set实例方法：
+
+* add()
+
+* keys()
+
+* values()
+
+* entries()
+
+* forEach()
+
+* ...
+
+4. Array.from() 可以将Set结构转换为数组；
+
+
+### WeakSet
+
+1. WeakSet成员只能是数组或者类似数组的对象；
+
+2. 不可遍历；
+
+3. 没有size；
+
+3. 因为其中的对象都是弱引用，即垃圾回收机制不考虑WeakSet对该对象的引用，不再引用对象时会自动销毁，不会出现内存泄露；
+
+
+### Map
+
+1. 解决Object结构只提供的“字符串--值”的对应，Map结构提供“值--值”的对应，是一个更完善的Hash结构实现；
+
+2. 实例的属性和操作方法
+
+* size
+
+* set
+
+* get 
+
+* has
+
+* delete
+
+* clear
+
+遍历方法
+
+* keys()
+
+* values()
+
+* entries()
+
+* forEach()
+
+---
+
+
+## 40. 处理js双精度问题
+
+```
+    0.1 + 0.2 = 0.30000000000000004
+```
+
+由于计算机是做二进制运算
+
+0.1 => 0.0001 1001 1001 1001…（无限循环）
+
+0.2 => 0.0011 0011 0011 0011…（无限循环）
+
+双精度浮点数的小数部分最多支持52位
+
+处理方法：
+
+    1. toFixed  不够严谨；
+    2. 把需要计算的数字升级（乘以10的n次幂）成计算机能够精确识别的整数，等计算完毕再降级（除以10的n次幂），这是大部分编程语言处理精度差异的通用方法。 
+
+
+```
+( 0.1 * 10 + 0.2 * 10 ) / 10  == 0.3
+```
+
+1. [个人封装的处理双精度方法 第7点](https://github.com/Megan-TA/UtilsJS)
+
+2. [关于js浮点数计算精度不准确问题的解决办法](https://www.cnblogs.com/xinggood/p/6639022.html)
 
 
