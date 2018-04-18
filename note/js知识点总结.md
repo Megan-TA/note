@@ -1462,17 +1462,52 @@ window.addEventListener('message',function(event) {
 },false);
 
 ```
+> 截图如下：
 
-![web骇客网站  接收端截图](D:\Users\chen_huang\Pictures\截图)
-![有道翻译网站 接收端截图](D:\Users\chen_huang\Pictures\截图)
+![web骇客网站  接收端截图](E:0.png)
+![有道翻译网站 接收端截图](E:1.png)
+
+> 参考资料
+1. [用HTML5里的window.postMessage在两个网页间传递数据](http://www.webhek.com/post/window-postmessage-api.html)
+
 
 ## 42. Service Worker
 
+> 背景
+
+为了解决web业务不断增加带来更多消耗资源、耗时等复杂运算带来性能问题，w3c初期提出Web Worker的API，目的为了解放主线程。原理是 将复杂 耗时的操作独立出来交给Web Worker，完成后通过postMessage方法告诉主线程。
+
+缺点：临时存在，不能永久；为此提出Service Worker，在Web Worker基础上增加持久缓存能力。
+
+在Service Worker之前有APPCache这个持久缓存的API，不过存在更新机主不完善，二次更新，大小限制，回滚等问题，具体参考下方链接1。
+
+Service Worker的特性如下：
+
+* 一个独立的 worker 线程，独立于当前网页进程，有自己独立的 worker context。
+
+* 一旦被 install，就永远存在，除非被 uninstall
+
+* 需要的时候可以直接唤醒，不需要的时候自动睡眠（有效利用资源，此处有坑）
+
+* 可编程拦截代理请求和返回，缓存文件，缓存的文件可以被网页进程取到（包括网络离线状态）
+
+* 离线内容开发者可控
+
+* 能向客户端推送消息
+
+* 不能直接操作 DOM
+
+* 出于安全的考虑，必须在 HTTPS 环境下才能工作
+
+* 异步实现，内部大都是通过 Promise 实现
+
+* 只能运行在HTTPS协议下
 
 
+> 参考资料
 
-
-
-
+1. [为什么app cache没有得到大规模应用？它有哪些硬伤吗？](https://www.zhihu.com/question/29876535)
+2. [Service Worker 简介](https://lavas.baidu.com/doc/offline-and-cache-loading/service-worker/service-worker-introduction)
+3. [如何优雅的为 PWA 注册 Service Worker](https://zhuanlan.zhihu.com/p/28161855)
 
 
