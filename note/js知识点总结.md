@@ -1246,7 +1246,7 @@ console.log(mod.counter); // 3
 
 ## 39. ES6
 
-    1. class
+## 1. Class
 
         1. class内部方法都是扩展在函数的原型链上;
 
@@ -1272,7 +1272,7 @@ console.log(mod.counter); // 3
 
 ---
 
-2. Set/WeakSet 和  Map/WeakMap
+## 2. Set/WeakSet 和  Map/WeakMap
 
 ### Set
 
@@ -1346,6 +1346,42 @@ console.log(mod.counter); // 3
 
 ---
 
+## 3. Object
+
+* Object.is(x, y)
+
+    代替 === 和 == 判断两个数值是否相等;
+
+注意：
+
+```
+    +0 == -0    // true
+    +0 === -0    // true
+    Object.is(+0, -0)   // false
+    Object.is({}, {})   // false
+```
+
+* Object.assign(target, obj1, obj2)
+
+    1. 默认合并参数是一个对象，如果不是对象的话 只能接受 字符串  不接受 boolean 数字；
+    2. 浅拷贝；
+
+
+注意：
+
+```
+Object.assign({}, 'abc')  => {0: "a", 1: "b", 2: "c"}
+Object.assign({}, 'abc', true)  => {0: "a", 1: "b", 2: "c"}
+Object.assign({}, 'abc', true, 10)  => {0: "a", 1: "b", 2: "c"}
+
+```
+
+
+
+
+---
+
+
 
 ## 40. 处理js双精度问题
 
@@ -1374,5 +1410,69 @@ console.log(mod.counter); // 3
 1. [个人封装的处理双精度方法 第7点](https://github.com/Megan-TA/UtilsJS)
 
 2. [关于js浮点数计算精度不准确问题的解决办法](https://www.cnblogs.com/xinggood/p/6639022.html)
+
+## 41. postMessage
+
+1. window.postMessage() 可以安全进行跨域、跨页面通信；
+1. 页面加载完成后才能进行跨域通信；
+
+发起端可以是open一个新窗口 或者 创建一个iframe 往新窗口里发送数据
+
+案例:
+
+```
+<!-- 客户端两种方式 -->
+
+<!-- 当前页面地址 http://www.webhek.com -->
+<!-- open方式 -->
+//弹出一个新窗口
+var domain = 'http://fanyi.youdao.com';
+var myPopup = window.open(domain, 'myWindow');
+
+//周期性的发送消息
+setInterval(function(){
+	var message = 'Hello!  The time is: ' + (new Date().getTime());
+	console.log('blog.local:  sending message:  ' + message);
+        //send the message and target URI
+	myPopup.postMessage(message,domain);
+},6000);
+
+
+<!-- iframe方式 -->
+//捕获iframe
+var domain = 'http://fanyi.youdao.com';
+var iframe = document.getElementById('myIFrame').contentWindow;
+
+//发送消息
+setInterval(function(){
+	var message = 'Hello!  The time is: ' + (new Date().getTime());
+	console.log('blog.local:  sending message:  ' + message);
+        //send the message and target URI
+	iframe.postMessage(message,domain); 
+},6000);
+
+
+
+<!-- 接收端 -->
+
+//监听消息反馈
+window.addEventListener('message',function(event) {
+	if(event.origin !== 'http://www.webhek.com') return;
+	console.log('received response:  ',event.data);
+},false);
+
+```
+
+![web骇客网站  接收端截图](D:\Users\chen_huang\Pictures\截图)
+![有道翻译网站 接收端截图](D:\Users\chen_huang\Pictures\截图)
+
+## 42. Service Worker
+
+
+
+
+
+
+
 
 
