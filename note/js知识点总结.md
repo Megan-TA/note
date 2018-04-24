@@ -1464,8 +1464,8 @@ window.addEventListener('message',function(event) {
 ```
 > 截图如下：
 
-![web骇客网站  接收端截图](E:0.png)
-![有道翻译网站 接收端截图](E:1.png)
+![web骇客网站  接收端截图](https://wx4.sinaimg.cn/mw690/006ANKB8gy1fqhqrhftfmj30yu0objvr.jpg)
+![有道翻译网站 接收端截图](https://wx2.sinaimg.cn/mw690/006ANKB8gy1fqhqri8fjlj30zk0h4tbk.jpg)
 
 > 参考资料
 1. [用HTML5里的window.postMessage在两个网页间传递数据](http://www.webhek.com/post/window-postmessage-api.html)
