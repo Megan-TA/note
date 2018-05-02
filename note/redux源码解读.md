@@ -117,11 +117,6 @@
         import compose from './compose'
         import warning from './utils/warning'
         import __DO_NOT_USE__ActionTypes from './utils/actionTypes'
-
-        /*
-        * This is a dummy function to check if the function name has been altered by minification.
-        * If the function has been minified and NODE_ENV !== 'production', warn the user.
-        */
         /*
         *   创建一个name为`isCrushed`的函数来检查那么被压缩过后的重复的函数名字，如果这个函数在非生产环境被修改则抛出警告提示
         */
@@ -236,31 +231,6 @@
 
                 return currentState
             }
-
-            /**
-            * Adds a change listener. It will be called any time an action is dispatched,
-            * and some part of the state tree may potentially have changed. You may then
-            * call `getState()` to read the current state tree inside the callback.
-            *
-            * You may call `dispatch()` from a change listener, with the following
-            * caveats:
-            *
-            * 1. The subscriptions are snapshotted just before every `dispatch()` call.
-            * If you subscribe or unsubscribe while the listeners are being invoked, this
-            * will not have any effect on the `dispatch()` that is currently in progress.
-            * However, the next `dispatch()` call, whether nested or not, will use a more
-            * recent snapshot of the subscription list.
-            *
-            * 2. The listener should not expect to see all state changes, as the state
-            * might have been updated multiple times during a nested `dispatch()` before
-            * the listener is called. It is, however, guaranteed that all subscribers
-            * registered before the `dispatch()` started will be called with the latest
-            * state by the time it exits.
-            *
-            * @param {Function} listener A callback to be invoked on every dispatch.
-            * @returns {Function} A function to remove this change listener.
-            */
-
             /**
             *  返回一个subscribe的闭包
             *  订阅一个事件
@@ -353,27 +323,13 @@
             }
 
             /**
-            * Interoperability point for observable/reactive libraries.
-            * @returns {observable} A minimal observable of state changes.
-            * For more information, see the observable proposal:
-            * https://github.com/tc39/proposal-observable
-            */
-            /**
             * 貌似一个类似观察者的方法，调用subscribe的api
-            *
+            * 内部并未看到哪里使用，猜测可能是用外部流行的订阅库代替现在的订阅方法
             *
             */
             function observable() {
                 const outerSubscribe = subscribe
                 return {
-                    /**
-                    * The minimal observable subscription method.
-                    * @param {Object} observer Any object that can be used as an observer.
-                    * The observer object should have a `next` method.
-                    * @returns {subscription} An object with an `unsubscribe` method that can
-                    * be used to unsubscribe the observable from the store, and prevent further
-                    * emission of values from the observable.
-                    */
                     subscribe(observer) {
                         if (typeof observer !== 'object' || observer === null) {
                             throw new TypeError('Expected the observer to be an object.')
@@ -413,6 +369,199 @@
         }
     ```
 ---
+> ## combineReducers.js
+
+    将拆分的reducer合并为一个大reducer
+
+    ```
+        import ActionTypes from './utils/actionTypes'
+        import warning from './utils/warning'
+        import isPlainObject from './utils/isPlainObject'
+
+        // action中无state的报错函数
+        function getUndefinedStateErrorMessage(key, action) {
+            const actionType = action && action.type
+            const actionDescription =
+                (actionType && `action "${String(actionType)}"`) || 'an action'
+
+            return (
+                `Given ${actionDescription}, reducer "${key}" returned undefined. ` +
+                `To ignore an action, you must explicitly return the previous state. ` +
+                `If you want this reducer to hold no value, you can return null instead of undefined.`
+            )
+        }
+        // 遍历查找reducer函数是否他有有一些不合法的地方
+        function getUnexpectedStateShapeWarningMessage(
+            inputState,
+            reducers,
+            action,
+            unexpectedKeyCache
+        ) {
+            const reducerKeys = Object.keys(reducers)
+            const argumentName =
+                action && action.type === ActionTypes.INIT
+                ? 'preloadedState argument passed to createStore'
+                : 'previous state received by the reducer'
+
+            if (reducerKeys.length === 0) {
+                return (
+                    'Store does not have a valid reducer. Make sure the argument passed ' +
+                    'to combineReducers is an object whose values are reducers.'
+                )
+            }
+
+            if (!isPlainObject(inputState)) {
+                return (
+                    `The ${argumentName} has unexpected type of "` +
+                    {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] +
+                    `". Expected argument to be an object with the following ` +
+                    `keys: "${reducerKeys.join('", "')}"`
+                )
+            }
+
+            const unexpectedKeys = Object.keys(inputState).filter(
+                key => !reducers.hasOwnProperty(key) && !unexpectedKeyCache[key]
+            )
+
+            unexpectedKeys.forEach(key => {
+                unexpectedKeyCache[key] = true
+            })
+
+            if (action && action.type === ActionTypes.REPLACE) return
+
+            if (unexpectedKeys.length > 0) {
+                return (
+                `Unexpected ${unexpectedKeys.length > 1 ? 'keys' : 'key'} ` +
+                `"${unexpectedKeys.join('", "')}" found in ${argumentName}. ` +
+                `Expected to find one of the known reducer keys instead: ` +
+                `"${reducerKeys.join('", "')}". Unexpected keys will be ignored.`
+                )
+            }
+        }
+
+        function assertReducerShape(reducers) {
+            Object.keys(reducers).forEach(key => {
+                const reducer = reducers[key]
+                const initialState = reducer(undefined, { type: ActionTypes.INIT })
+
+                if (typeof initialState === 'undefined') {
+                    throw new Error(
+                        `Reducer "${key}" returned undefined during initialization. ` +
+                        `If the state passed to the reducer is undefined, you must ` +
+                        `explicitly return the initial state. The initial state may ` +
+                        `not be undefined. If you don't want to set a value for this reducer, ` +
+                        `you can use null instead of undefined.`
+                    )
+                }
+
+                const type =
+                    '@@redux/PROBE_UNKNOWN_ACTION_' +
+                        Math.random()
+                        .toString(36)
+                        .substring(7)
+                        .split('')
+                        .join('.')
+                if (typeof reducer(undefined, { type }) === 'undefined') {
+                    throw new Error(
+                        `Reducer "${key}" returned undefined when probed with a random type. ` +
+                        `Don't try to handle ${
+                            ActionTypes.INIT
+                        } or other actions in "redux/*" ` +
+                        `namespace. They are considered private. Instead, you must return the ` +
+                        `current state for any unknown actions, unless it is undefined, ` +
+                        `in which case you must return the initial state, regardless of the ` +
+                        `action type. The initial state may not be undefined, but can be null.`
+                    )
+                }
+            })
+        }
+
+        /**
+        * Turns an object whose values are different reducer functions, into a single
+        * reducer function. It will call every child reducer, and gather their results
+        * into a single state object, whose keys correspond to the keys of the passed
+        * reducer functions.
+        *
+        * @param {Object} reducers An object whose values correspond to different
+        * reducer functions that need to be combined into one. One handy way to obtain
+        * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+        * undefined for any action. Instead, they should return their initial state
+        * if the state passed to them was undefined, and the current state for any
+        * unrecognized action.
+        *
+        * @returns {Function} A reducer function that invokes every reducer inside the
+        * passed object, and builds a state object with the same shape.
+        */
+        export default function combineReducers(reducers) {
+            const reducerKeys = Object.keys(reducers)
+            const finalReducers = {}
+            // 遍历检测reduer的key值是否存在 并将为函数类型的reducer缓存
+            for (let i = 0; i < reducerKeys.length; i++) {
+                const key = reducerKeys[i]
+
+                if (process.env.NODE_ENV !== 'production') {
+                    if (typeof reducers[key] === 'undefined') {
+                        warning(`No reducer provided for key "${key}"`)
+                    }
+                }
+
+                if (typeof reducers[key] === 'function') {
+                    finalReducers[key] = reducers[key]
+                }
+            }
+            const finalReducerKeys = Object.keys(finalReducers)
+
+            let unexpectedKeyCache
+            if (process.env.NODE_ENV !== 'production') {
+                unexpectedKeyCache = {}
+            }
+
+            let shapeAssertionError
+            try {
+                assertReducerShape(finalReducers)
+            } catch (e) {
+                shapeAssertionError = e
+            }
+
+            return function combination(state = {}, action) {
+                if (shapeAssertionError) {
+                    throw shapeAssertionError
+                }
+
+                if (process.env.NODE_ENV !== 'production') {
+                    const warningMessage = getUnexpectedStateShapeWarningMessage(
+                        state,
+                        finalReducers,
+                        action,
+                        unexpectedKeyCache
+                    )
+                    if (warningMessage) {
+                        warning(warningMessage)
+                    }
+                }
+
+                let hasChanged = false
+                const nextState = {}
+                // 更新下初始的state为新state
+                for (let i = 0; i < finalReducerKeys.length; i++) {
+                    const key = finalReducerKeys[i]
+                    const reducer = finalReducers[key]
+                    const previousStateForKey = state[key]
+                    const nextStateForKey = reducer(previousStateForKey, action)
+                    if (typeof nextStateForKey === 'undefined') {
+                        const errorMessage = getUndefinedStateErrorMessage(key, action)
+                        throw new Error(errorMessage)
+                    }
+                    nextState[key] = nextStateForKey
+                    hasChanged = hasChanged || nextStateForKey !== previousStateForKey
+                }
+                return hasChanged ? nextState : state
+            }
+        }
+    ```
+
+
+---
 > ## compose.js
 
     工具方法 供 applyMiddleware中使用  
@@ -440,27 +589,121 @@
 ---
 > ## applyMiddleware.js
 
+    要了解中间件这一层概念，前提需要知道在哪里调用中间件方法以及中间件一般长什么样，最后还要熟悉洋葱模型
+
+    先看下代码：
+    
+    ```
+        function f1(next) {
+            return function() {
+                console.log('f1 start')
+                next()
+                console.log('f1 end')
+            }
+        }
+        function f2(next) {
+            return function() {
+                console.log('f2 start')
+                next()
+                console.log('f2 end')
+            }
+        }
+        function f3(next) {
+            return function() {
+                console.log('f3 start')
+                next()
+                console.log('f3 end')
+            }
+        }
+        function f() {
+            console.log('heart')
+        }
+
+        f1(f2(f3(f)))()
+
+        /**
+        * 输出：
+        * f1 start
+        * f2 start
+        * f3 start
+        * heart
+        * f3 end
+        * f2 end
+        * f1 end
+        */
+
+    ```
+
+    盗图，放两张nodejs框架koa的洋葱模式图加深理解
+
+![koa洋葱圈模型](https://camo.githubusercontent.com/d80cf3b511ef4898bcde9a464de491fa15a50d06/68747470733a2f2f7261772e6769746875622e636f6d2f66656e676d6b322f6b6f612d67756964652f6d61737465722f6f6e696f6e2e706e67)
+![中间件执行顺序](https://raw.githubusercontent.com/koajs/koa/a7b6ed0529a58112bac4171e4729b8760a34ab8b/docs/middleware.gif)
+
+    一般中间件写法遵循的写法如下：
+
+    ```
+        function middleware1(store) {
+            return function(next) {
+                return function(action) {
+                    console.log('middleware1 开始')
+                    next(action)
+                    console.log('middleware1 结束')
+                }
+            }
+        }
+        function middleware2(store) {
+            return function(next) {
+                return function(action) {
+                    console.log('middleware2 开始')
+                    next(action)
+                    console.log('middleware2 结束')
+                }
+            }
+        }
+        function middleware3(store) {
+            return function(next) {
+                return function(action) {
+                    console.log('middleware3 开始')
+                    next(action)
+                    console.log('middleware3 结束')
+                }
+            }
+        }
+    ```
+
+    好 我们再初始化redux的时候调用中间件，如下：
+
+    ```
+        // 初始化创建store的方法
+        let store = createStore(
+            combineReducers,
+            applyMiddleware(
+                middleware1,
+                middleware2,
+                middleware3
+            )
+        )
+    ```
+
+    前提条件都准备好了， 来 我们再看下中间件源码实现：
+
     ```
         import compose from './compose'
 
-        /**
-        * Creates a store enhancer that applies middleware to the dispatch method
-        * of the Redux store. This is handy for a variety of tasks, such as expressing
-        * asynchronous actions in a concise manner, or logging every action payload.
-        *
-        * See `redux-thunk` package as an example of the Redux middleware.
-        *
-        * Because middleware is potentially asynchronous, this should be the first
-        * store enhancer in the composition chain.
-        *
-        * Note that each middleware will be given the `dispatch` and `getState` functions
-        * as named arguments.
-        *
-        * @param {...Function} middlewares The middleware chain to be applied.
-        * @returns {Function} A store enhancer applying the middleware.
-        */
         export default function applyMiddleware(...middlewares) {
+            /**
+            *   一开始返回createStore没看懂 回头看了下调用方式才发现由于applyMiddeleware包裹
+            *   在createStore函数中，createStore看成是一个内部的全局变量，可以直接将
+            *   createStore作为参数传递 ...args就是
+            *   createStore的三个参数 reducers、preloadState、enchare
+            *   可能有人会疑惑，感受下下面代码：
+            *   a = (x,y) => { console.log(x) }
+            *   b = () => a => (...args) => { let store = a(args);  console.log(store)}
+            *   a('测试',b()) =>  '测试'
+            *
+            */
             return createStore => (...args) => {
+                // 此处都是调用的createStore方法 返回一个store的闭包
                 const store = createStore(...args)
                 let dispatch = () => {
                     throw new Error(
@@ -473,7 +716,46 @@
                     getState: store.getState,
                     dispatch: (...args) => dispatch(...args)
                 }
+                /**
+                * 依次执行中间件函数 返回第一层闭包的chain新数组
+                * 即 [
+                        function (next) {
+                            return function(action) {
+                                console.log('middleware1 开始')
+                                next(action)
+                                console.log('middleware1 结束')
+                            }
+                        },
+                        function (next) {
+                            return function(action) {
+                                console.log('middleware2 开始')
+                                next(action)
+                                console.log('middleware2 结束')
+                            }
+                        },
+                        function (next) {
+                            return function(action) {
+                                console.log('middleware3 开始')
+                                next(action)
+                                console.log('middleware3 结束')
+                            }
+                        }
+                    ]
+                *
+                *
+                */
                 const chain = middlewares.map(middleware => middleware(middlewareAPI))
+                /**
+                * 结合compose源码分析，compose(a,b,c,d)('测试') => a(b(c(d())))('测试')
+                * 执行顺序是 d => c => b => a 但都是一次返回funciton 并没有执行内在逻辑
+                * 最后到a函数的时候才会开始执行，依次输出
+                * middleware1 开始
+                * middleware2 开始
+                * middleware3 开始
+                * middleware3 结束
+                * middleware2 结束
+                * middleware1 结束
+                */
                 dispatch = compose(...chain)(store.dispatch)
 
                 return {
@@ -484,3 +766,12 @@
         }
 
     ```
+
+
+    ```
+
+
+
+> ## 参考资料
+1. [egg企业级框架](http://eggjs.org/zh-cn/intro/egg-and-koa.html)
+2. [Redux, Redux thunk 和 React Redux 源码阅读](https://www.lingchenxuan.com/2017/07/04/Redux,-Redux-thunk-%E5%92%8C-React-Redux-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/)
