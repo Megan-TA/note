@@ -71,7 +71,11 @@ get点：
 
 2. createWebpackClientConfig.js
 
-    动态确定webpack配置，暴露一个接受对象的参数，最后整合 plugins、entry、
+    动态确定webpack配置，暴露一个接受对象的参数，最后整合 plugins、entry
+
+    注意：默认在`entry`的入口属性的`vendor`中，引入`../component`以及`../controller`这两个很重要，一个引用了一些默认的组件，还有一个对外展示的`controller`层，这也是最终整合外部项目`imvc`层概念的一个重要环节。
+
+get点：
 
     - webpack-bundle-analyzer // 分析打包后的各个文件体积大小情况
     - optimize-js-plugin
@@ -158,8 +162,67 @@ webpack默认不是有监听事件为什么还需要这个呢？答案在于此�
     }
     ```
 
+> ## controller目录
+
+默认对外输出一个`Controller`的对象，这里面就配置了一些针对用户自定义设置的属性做一些初始化工作，比如：
+```
+Model,
+initialState,
+actions,
+context,
+location,
+SSR,
+Loading
+```
+其中Loading是一个空div在`context.isServer && !!!SSR`出现，支持自定义loading组件
+
+发现一个未处理的事情 第371行未处理
+
+```
+/**
+* 动态获取最终的 actions
+*/
+if (this.getFinalActions) {
+    actions = this.getFinalActions(actions)
+}
+```
+
+
+> ## 启动开发流程（start）:
+
+外部项目在npm上下载`react-imvc`包之后，在`package.json`中加入启动命令`react-imvc start --config=xxxxx.js`，其中`xxxxx.js`是自定义配置，比如如下一个配置
+
+```
+const config = {
+  layout: "layout",
+  routes: "routes",
+  env: 'env',
+  port: 3000,
+  basename: "",
+  restapi: "",
+  title: "",
+  description: "",
+  keywords: "",
+  context: {
+    env: env
+  },
+  entry: {
+    vendor: ["moment", "rome", "antd", "lodash"]
+  }
+}
+```
+之后在`react-imvc`项目下接受到指令传过来的`start`参数启动`start/index.js`文件，在这个文件中做了如下几件事：
+* 获取用户自定义的配置对象与本身的默认配置项合并为新的`options`；
+* 根据配置项启动nodejs服务；
+* 根据外部项目配置`src/index.js`子目录下路由经过外部的`create-app`资源走服务端同构后输出静态模板文件并配合`webpack`实现文件改动的监听；
+
+外部项目建议分为`hmvc`结构，结构如下：
+
+
+
+
 
 > ## 参考资料
   1. [react-imvc github](https://github.com/Lucifier129/react-imvc)
   2. [为你的网站带上帽子 — 使用 helmet 保护 Express 应用](https://juejin.im/post/5a24fd8f51882509e5438247)
-  3. [webpack-dev-middleware详解](https://juejin.im/entry/59806132f265da3e1e5bd613)
+  3. [webpack-dev-middleware详解](https://juejin.im/entry/59806132f265da3e1e5bd613) 
