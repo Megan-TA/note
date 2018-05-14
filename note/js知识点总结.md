@@ -1243,8 +1243,7 @@ console.log(mod.counter); // 3
 
     2. If-Modified-Since 代表 判断两次请求之间是否有过修改 没有直接返回协商缓存；
 
-
-## 39. ES6
+> ## 39. ES6
 
 ## 1. Class
 
@@ -1366,26 +1365,48 @@ console.log(mod.counter); // 3
     1. 默认合并参数是一个对象，如果不是对象的话 只能接受 字符串  不接受 boolean 数字；
     2. 浅拷贝；
 
-
 注意：
 
-```
+```javascript
 Object.assign({}, 'abc')  => {0: "a", 1: "b", 2: "c"}
 Object.assign({}, 'abc', true)  => {0: "a", 1: "b", 2: "c"}
 Object.assign({}, 'abc', true, 10)  => {0: "a", 1: "b", 2: "c"}
-
 ```
-
-
-
 
 ---
 
+## 4. Promise
+
+Promise处理异步编程的一种解决方案，简单来说就是一个容器，里面存放着异步之后的事件结果。
+
+缺点：
+
+* 无法中途取消
+* 如果不设置回调函数，内部抛出的错误不会反应到外部
+* 当处于pending状态时候 不知道是发展到哪一个阶段
+
+注意点：
+
+* promise.prototype.then
+
+promise的then是定义在原型对象上的，方法有两个参数，分别指定`resolved`和`reject`状态的回调函数，其中`rejected`不是必选的。
+
+```javascript
+promise.then(function(value) {
+  // success
+}, function(error) {
+  // failure
+});
+```
+
+* promise.prototype.catch
+
+如果`catch`和`then`的第二个回调参数共存的情况下，默认是返回then的`rejected`结果，不会执行`catch`方法。而且`catch`返回的结果可以被后续的再次定义的`catch`方法所捕获。
 
 
 ## 40. 处理js双精度问题
 
-```
+```javascript
     0.1 + 0.2 = 0.30000000000000004
 ```
 
@@ -1402,8 +1423,7 @@ Object.assign({}, 'abc', true, 10)  => {0: "a", 1: "b", 2: "c"}
     1. toFixed  不够严谨；
     2. 把需要计算的数字升级（乘以10的n次幂）成计算机能够精确识别的整数，等计算完毕再降级（除以10的n次幂），这是大部分编程语言处理精度差异的通用方法。 
 
-
-```
+```javascript
 ( 0.1 * 10 + 0.2 * 10 ) / 10  == 0.3
 ```
 
@@ -1420,7 +1440,7 @@ Object.assign({}, 'abc', true, 10)  => {0: "a", 1: "b", 2: "c"}
 
 案例:
 
-```
+```javascript
 <!-- 客户端两种方式 -->
 
 <!-- 当前页面地址 http://www.webhek.com -->
