@@ -1250,168 +1250,7 @@ console.log(mod.counter); // 3
 
     2. If-Modified-Since 代表 判断两次请求之间是否有过修改 没有直接返回协商缓存；
 
-> ## 39. ES6
-
-## 1. Class
-
-        1. class内部方法都是扩展在函数的原型链上;
-
-        2. class内部方法无法遍历（Object.keys），而ES5构造函数原型链的方法可以遍历；
-
-        3. class的方法名字可以是表达式（用[]圈起来）；
-
-        4. 不存在变量提升；
-
-        5. static 静态属性 且不会被实例获取到，可以被继承到；
-
-        6. get/set 对某个方法拦截；
-
-        7. new.target 可以用来判断类是使用哪个方法调用（可用来指定必须new或者extends击沉调用形式）；
-
-        8. extends 继承 
-
-            ES6继承和ES5继承区别：
-
-            ES5继承是 先创造子类的实例对象this，再将父类方法添加到this上
-
-            ES6继承是 先创造父类的实例对象this，再在子类的构造函数修改this
-
----
-
-## 2. Set/WeakSet 和  Map/WeakMap
-
-### Set
-
-1. Set是一组没有重复值的数据结构（多个NaN默认是相同的，只能添加一个）；
-
-2. Set构造函数的方法：
-
-* size;
-
-* delete;
-
-* has;
-
-* clear;
-
-3. Set实例方法：
-
-* add()
-
-* keys()
-
-* values()
-
-* entries()
-
-* forEach()
-
-* ...
-
-4. Array.from() 可以将Set结构转换为数组；
-
-
-### WeakSet
-
-1. WeakSet成员只能是数组或者类似数组的对象；
-
-2. 不可遍历；
-
-3. 没有size；
-
-3. 因为其中的对象都是弱引用，即垃圾回收机制不考虑WeakSet对该对象的引用，不再引用对象时会自动销毁，不会出现内存泄露；
-
-
-### Map
-
-1. 解决Object结构只提供的“字符串--值”的对应，Map结构提供“值--值”的对应，是一个更完善的Hash结构实现；
-
-2. 实例的属性和操作方法
-
-* size
-
-* set
-
-* get 
-
-* has
-
-* delete
-
-* clear
-
-遍历方法
-
-* keys()
-
-* values()
-
-* entries()
-
-* forEach()
-
----
-
-## 3. Object
-
-* Object.is(x, y)
-
-    代替 === 和 == 判断两个数值是否相等;
-
-注意：
-
-```
-    +0 == -0    // true
-    +0 === -0    // true
-    Object.is(+0, -0)   // false
-    Object.is({}, {})   // false
-```
-
-* Object.assign(target, obj1, obj2)
-
-    1. 默认合并参数是一个对象，如果不是对象的话 只能接受 字符串  不接受 boolean 数字；
-    2. 浅拷贝；
-
-注意：
-
-```javascript
-Object.assign({}, 'abc')  => {0: "a", 1: "b", 2: "c"}
-Object.assign({}, 'abc', true)  => {0: "a", 1: "b", 2: "c"}
-Object.assign({}, 'abc', true, 10)  => {0: "a", 1: "b", 2: "c"}
-```
-
----
-
-## 4. Promise
-
-Promise处理异步编程的一种解决方案，简单来说就是一个容器，里面存放着异步之后的事件结果。
-
-缺点：
-
-* 无法中途取消
-* 如果不设置回调函数，内部抛出的错误不会反应到外部
-* 当处于pending状态时候 不知道是发展到哪一个阶段
-
-注意点：
-
-* promise.prototype.then
-
-promise的then是定义在原型对象上的，方法有两个参数，分别指定`resolved`和`reject`状态的回调函数，其中`rejected`不是必选的。
-
-```javascript
-promise.then(function(value) {
-  // success
-}, function(error) {
-  // failure
-});
-```
-
-* promise.prototype.catch
-
-如果`catch`和`then`的第二个回调参数共存的情况下，默认是返回then的`rejected`结果，不会执行`catch`方法。而且`catch`返回的结果可以被后续的再次定义的`catch`方法所捕获。
-
-
-## 40. 处理js双精度问题
+## 39. 处理js双精度问题
 
 ```javascript
     0.1 + 0.2 = 0.30000000000000004
@@ -1438,7 +1277,7 @@ promise.then(function(value) {
 
 2. [关于js浮点数计算精度不准确问题的解决办法](https://www.cnblogs.com/xinggood/p/6639022.html)
 
-## 41. postMessage
+## 40. postMessage
 
 1. window.postMessage() 可以安全进行跨域、跨页面通信；
 1. 页面加载完成后才能进行跨域通信；
@@ -1498,7 +1337,7 @@ window.addEventListener('message',function(event) {
 1. [用HTML5里的window.postMessage在两个网页间传递数据](http://www.webhek.com/post/window-postmessage-api.html)
 
 
-## 42. Service Worker
+## 41. Service Worker
 
 > 背景
 
