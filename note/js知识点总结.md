@@ -67,9 +67,16 @@ document.getElementById('xx').scrollIntoView()
 -------------------------------------
 
 ## 6. typeof和instanceof
+
 > ### typeof
->> 会返回一个变量的基本类型，只有以下几种：number,boolean,string,object,function；
->>> ==缺点==： 不适用于来判断数组，因为不管是数组还是对象，都会返回object。
+
+会返回一个变量的基本类型，只有以下几种：number,boolean,string,object,function；
+
+缺点： 
+
+* 不适用于来判断数组，因为不管是数组还是对象，都会返回object。
+* 判断不了null null也是对象
+
 >
 
 ```
