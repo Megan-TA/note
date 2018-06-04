@@ -133,9 +133,7 @@ webpack默认不是有监听事件为什么还需要这个呢？答案在于此�
     * 把 symbol 属性里的对象，当做数组调用 slice 方法，在 IE8 下报错
     * 将 symbol key 删除
     */
-
 > ## util目录
-
 1. index.js
 
     - getFlatList 降维数组，输出一位数组
@@ -215,6 +213,20 @@ const config = {
 * 获取用户自定义的配置对象与本身的默认配置项合并为新的`options`；
 * 根据配置项启动nodejs服务；
 * 根据外部项目配置`src/index.js`子目录下路由经过外部的`create-app`资源走服务端同构后输出静态模板文件并配合`webpack`实现文件改动的监听；
+
+---
+
+> 实际实践使用心得:
+
+1. 
+
+假如views层定义的是一个函数 不会走默认的 react 组件的生命周期方法 默认 mvc 会解析 view 函数，提供以下类似生命周期的方法（注意这些方法必须是promise对象）
+
+- componentWillCreate     组件创建之前
+- shouldComponentCreate   组件判断是否需要更新
+- preload                 组件预加载css等资源 先发送url请求 所以优先级最高
+
+mvc 内部将挂载在这些方法的回调函数存放在一种数组中，最后在通过Promise.all 方法等待所有 promise 状态发生改变 达到类似生命周期的作用
 
 
 
