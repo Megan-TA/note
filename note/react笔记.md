@@ -24,16 +24,15 @@
 
 - 组件的更新渲染周期
 
+-> componentWillReceiveProps(nextProps)：组件从父组件接收到新的 props 之前调用。
+
 -> shouldComponentUpdate(nextProps, nextState)：控制组件是否重新渲染
 
 如果返回 false 组件就不会重新渲染。这个生命周期在 React.js 性能优化上非常有用。
 
--> componentWillReceiveProps(nextProps)：组件从父组件接收到新的 props 之前调用。
-
 -> componentWillUpdate()：组件开始重新渲染之前调用。
 
 -> componentDidUpdate()：组件重新渲染并且把更改变更到真实的 DOM 以后调用
-
 
 > ## ref
 
