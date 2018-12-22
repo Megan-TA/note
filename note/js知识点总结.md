@@ -1384,4 +1384,14 @@ Service Worker的特性如下：
 2. [Service Worker 简介](https://lavas.baidu.com/doc/offline-and-cache-loading/service-worker/service-worker-introduction)
 3. [如何优雅的为 PWA 注册 Service Worker](https://zhuanlan.zhihu.com/p/28161855)
 
+## 42 加载更多
 
+原理：
+
+scrollTop（滚动条滚动距离） + clientHeight（可见区域高度） == scrollHeight（元素实际高度）
+
+备注：
+
+offsetHeighgt = height + padding + border
+
+clientHeight = height + padding
