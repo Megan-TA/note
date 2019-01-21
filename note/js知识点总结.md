@@ -2,16 +2,22 @@
 
 ## 1. 解码和编码
 > 原因：因为链接里面会有中文或者特殊字符号无法跳转需要进行相关编码解码
-> **编码**
+
+**编码**
 >         
-    'encodeURI': 整体url编码， 注意参数会被截断;
+    'encodeURI': 只对查询的参数做编码 
     
-    'encodeURIComponent': 保证参数不会被截断 可以带参数
-> **解码**
+    'encodeURIComponent': 对整个url做编码，包括? & / #
+
+```javascript
+a = 'www.baidu.com/test?name="zhangsan"'
+encodeURI(a) => 'www.baidu.com/test?name=%22zhangsan%22'
+encodeURIComponent(a) => 'www.baidu.com%2Ftest%3Fname%3D%22zhangsan%22'
+```
+**解码**
 >
-    'decodeURI': 解码
-    'decodeURIComponent': 带参数解码
-    
+    'decodeURI': 只对查询参数做解码
+    'decodeURIComponent': 对整个URL做解码
 ---
 
 ## 2. 序列化和反序列化
@@ -21,16 +27,15 @@
 JSON.stringify()        // 序列化
 JSON.parse()            // 反序列化
 ```
-> 备注
->>  ajax请求头部信息 
->>> header: {'Content-Type': 'application/json; charset=utf-8;'}
+使用ajax需要设置请求头部信息
 
-> JSON.stringify() 可以用来迅速判断两个对象是否相等
+header: {'Content-Type': 'application/json; charset=utf-8;'}
+
+> JSON.stringify() 可以简单的用来迅速判断两个对象是否相等，但不严谨（比如：序列化失败）
 
 ---
 
 ## 3. 日期
->
 
 ```
 new Date().getTime()   // 单位  秒
@@ -45,25 +50,20 @@ new Date().toLocaleTimeString("UTC",{ hour12: false })  // 17:20:16
 
 ## 4. 回流/重绘
 
-1. 回流：几何属性发生变化 比如： 内容、结构、位置或尺寸发生变化，需要重新计算样式和渲染树；
+1. 回流：几何属性发生变化 比如：内容、结构、位置或尺寸发生变化，需要重新计算样式和渲染树；
 
 2. 重绘：元素发生的改变只影响了节点的一些样式（背景色、边框色、文字颜色等）
 
-
-
-
-
+> 回流比重绘要消耗更多的资源
 ------------------------------
 
 ## 5. 锚点定位 scrollIntoView （无兼容问题）
 
-    可以用来做一些tab定位
+可以用来做一些tab定位
 
 ```
 document.getElementById('xx').scrollIntoView()
-
 ```
-
 -------------------------------------
 
 ## 6. typeof和instanceof
@@ -84,17 +84,22 @@ typeof [1]      // Object
 ```
 
 > ### instanceof
->> 返回的是一个布尔值   只能用来判断对象和函数
->
+
+返回的是一个布尔值   只能用来判断对象和函数
 
 ```
 var a = {};
-
 alert(  a instanceof Object )     // true
-
 var a  = [];
-
 alert(  a instanceof Array )    // true
+```
+
+最靠谱也是最方便的办法使用`Object.prototype.toString.call()`来判断
+
+```javascript
+function types (target) {
+    
+}
 
 ```
 
@@ -1384,7 +1389,7 @@ Service Worker的特性如下：
 2. [Service Worker 简介](https://lavas.baidu.com/doc/offline-and-cache-loading/service-worker/service-worker-introduction)
 3. [如何优雅的为 PWA 注册 Service Worker](https://zhuanlan.zhihu.com/p/28161855)
 
-## 42 加载更多
+## 42 加载更多/下拉刷新
 
 原理：
 
